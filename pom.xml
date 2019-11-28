@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.1.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>ncachejavaclient</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ncachejavaclient</name>
+	<description>Project for NCache Java Client</description>
+	<packaging>jar</packaging>
+	
+	<properties>
+		<java.version>11</java.version>
+		<skipTests>true</skipTests>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>io.springfox</groupId>
+    		<artifactId>springfox-swagger-ui</artifactId>
+    		<version>2.9.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/cache-api-1.0.0.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>Common</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/Common.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>Data</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/Data.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>DataSource</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/DataSource.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0.1</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/guava-13.0.1.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>guice</artifactId>
+			<version>3.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/guice-3.0.jar</systemPath>
+		</dependency>
+		
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>ncacheHelper</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/NCacheHelper.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-cache</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-cache.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-client</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-client.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-common</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-common.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-jmxsnmp</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-jmxsnmp.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-license</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-license.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-management</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-management.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-parser</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-parser.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-runtime</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-runtime.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>nc-serialization</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/nc-serialization.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>sigar</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/sigar.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.alachisoft.ncache</groupId>
+			<artifactId>snmp4j</artifactId>
+			<version>2.1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/lib/snmp4j-2.1.0.jar</systemPath>
+		</dependency>
+		
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includeSystemScope>true</includeSystemScope>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
