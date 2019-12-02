@@ -1,41 +1,56 @@
 package com.example.ncachejavaclient;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.alachisoft.ncache.runtime.caching.Tag;
 import com.alachisoft.ncache.runtime.exceptions.CacheException;
 import com.alachisoft.ncache.runtime.exceptions.ConfigurationException;
 import com.alachisoft.ncache.runtime.exceptions.GeneralFailureException;
 import com.alachisoft.ncache.web.caching.Cache;
+import com.alachisoft.ncache.web.caching.CacheInitParams;
 import com.alachisoft.ncache.web.caching.CacheItem;
+import com.alachisoft.ncache.web.caching.CacheMode;
 import com.alachisoft.ncache.web.caching.CacheServerInfo;
+import com.alachisoft.ncache.web.caching.ClientCacheSyncMode;
 import com.alachisoft.ncache.web.caching.NCache;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class NCacheController {
 	
-	private CacheInfo cacheInfo;
+	private Environment env;
+	private RestTemplateBuilder restTemplateBuilder;
+	
 	private Cache cache;
-	private Tag tag;
+	private static final Tag tag = new Tag("items");
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NCacheController.class);
 	
 	@Autowired
-	public NCacheController(CacheInfo cacheinf) {
-		this.cacheInfo = cacheinf;
-		this.tag = new Tag("items");
+	public NCacheController(Environment environment, RestTemplateBuilder restTemplateBuilder) {
+		this.restTemplateBuilder = restTemplateBuilder;
+		this.env = environment;
 	}
 	
 	@RequestMapping(value="/api/ncache", method = RequestMethod.GET)
@@ -148,7 +163,21 @@ public class NCacheController {
 	{
 		if (cache == null){
 				try {
-					cache = NCache.initializeCache(cacheInfo.getCacheId(), cacheInfo.getConnectionParams());
+					CacheInitParams connParams = this.getCacheConnectionParams();
+					String cacheID = this.env.getProperty("CacheID");
+					
+					LOGGER.info("Cache ID:"+cacheID);
+					LOGGER.info("Cache Servers Available:");
+					
+					CacheServerInfo[] cacheServers = connParams.getServerList();
+					
+					int i = 1;
+					for (CacheServerInfo server: cacheServers)
+					{
+						LOGGER.info("Server "+i+": "+ server.getName() + " "+ server.getPort());
+					}
+					
+					cache = NCache.initializeCache(cacheID, connParams);
 				} catch (ConfigurationException e) {
 					// TODO Auto-generated catch block
 					LOGGER.error("ConfigurationException "+e.getMessage());
@@ -161,6 +190,14 @@ public class NCacheController {
 					// TODO Auto-generated catch block
 					LOGGER.error("CacheException "+e.getMessage());
 					e.printStackTrace();
+				} catch (JsonMappingException e) {
+					// TODO Auto-generated catch block
+					LOGGER.error("JsonMappingException "+e.getMessage());
+					e.printStackTrace();
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					LOGGER.error("JsonProcessingException "+e.getMessage());
+					e.printStackTrace();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					LOGGER.error("Exception "+e.getMessage());
@@ -169,4 +206,77 @@ public class NCacheController {
 		}
 		
 	}
+	
+	private CacheInitParams getCacheConnectionParams() throws JsonMappingException, JsonProcessingException
+	{
+		RestTemplate restTemplate = this.restTemplateBuilder.build(); 
+		String ncacheDiscoveryUrl = this.env.getProperty("NCacheDiscoveryURL"); 
+		
+		ResponseEntity<String> response = restTemplate.getForEntity(ncacheDiscoveryUrl, String.class);
+		
+		String stringData = response.getBody();
+		
+		LOGGER.info("Json string data received:"+stringData);
+		
+		ObjectMapper objectMapper = new ObjectMapper(); 
+		TypeReference<HashMap<String,ArrayList<String>>> typeRef= new TypeReference<HashMap<String,ArrayList<String>>>() { }; 
+		HashMap<String, ArrayList<String>> map = objectMapper.readValue(stringData, typeRef);
+		
+		ArrayList<String> serverList = map.get("cache-client");
+		
+		LOGGER.info("Total number of NCache servers:"+serverList.size());
+		
+		ArrayList<CacheServerInfo> cacheServers = new ArrayList<CacheServerInfo>();
+		String temp = "";
+		StringTokenizer tokenizer = null;
+		String ipAddress = "";
+		int port = -1;
+		
+		for (String server:serverList) {
+			temp = server.replace("tcp://", "").replace("/", "");
+			tokenizer = new StringTokenizer(temp,":",false);
+			ipAddress = tokenizer.nextToken();
+			port = Integer.parseInt(tokenizer.nextToken());
+			
+			try {
+				CacheServerInfo cacheServer = new CacheServerInfo();
+				cacheServer.setName(ipAddress);
+				cacheServer.setPort(port);
+				cacheServers.add(cacheServer);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				LOGGER.error("UnknownHostException "+e.getMessage());
+				e.printStackTrace();
+			}
+			
+		}
+		
+		CacheServerInfo[] ncacheServers = new CacheServerInfo[cacheServers.size()];
+		
+		for (int i = 0; i < ncacheServers.length; i++)
+		{
+			ncacheServers[i] = cacheServers.get(i);
+		}
+		
+		CacheInitParams connectionParams = new CacheInitParams();
+
+		connectionParams.setClientCacheSyncMode(ClientCacheSyncMode.Optimistic);
+		connectionParams.setBindIP("");
+		connectionParams.setClientRequestTimeOut(30);
+		connectionParams.setConnectionRetries(3);
+		connectionParams.setConnectionTimeout(5);
+		connectionParams.setDefaultReadThruProvider("");
+		connectionParams.setDefaultWriteThruProvider("");
+		connectionParams.setEnableClientLogs(true);
+		connectionParams.setEnableDetailedClientLogs(true);
+		connectionParams.setLoadBalance(true);
+		connectionParams.setMode(CacheMode.OutProc);
+		connectionParams.setRetryConnectionDelay(5);
+		connectionParams.setRetryInterval(3);
+		connectionParams.setServerList(ncacheServers);
+		
+		
+		return connectionParams;
+	}
+
 }
